@@ -3,7 +3,8 @@ import type { AppDispatch, RootState } from "../app/store";
 import { useEffect, useState } from "react";
 import { deletePost, getPosts } from "../features/postsSlice";
 import { Link } from "react-router-dom";
-import { CreatePostForm } from "../components/CreatePostForm";
+import { CreatePostDialog } from "../components/CreatePostDialog";
+import { DataGridSkeleton } from "../components/DataGridSkeleton";
 import type { Post } from "../types";
 import {
   DataGrid,
@@ -11,6 +12,7 @@ import {
   type GridColDef,
   type GridRowParams,
   type GridRowId,
+  GridAddIcon,
 } from "@mui/x-data-grid";
 import { Box, Button, Typography, Container, Paper, Chip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -24,7 +26,7 @@ export const HomePage = () => {
     (state: RootState) => state.posts,
   );
   const { user } = useSelector((state: RootState) => state.auth);
-  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   useEffect(() => {
     dispatch(getPosts());
@@ -232,80 +234,84 @@ export const HomePage = () => {
           All Posts
         </Typography>
         <Button
+          startIcon={<GridAddIcon />}
+          className=" text-white bg-black hover:bg-gray-900 focus:outline-none font-medium rounded-lg text-sm py-2.5"
           variant="contained"
-          onClick={() => setShowCreateForm(!showCreateForm)}
+          onClick={() => setShowCreateDialog(true)}
           sx={{ minWidth: 120 }}
         >
-          {showCreateForm ? "Cancel" : "Create Post"}
+          Create Post
         </Button>
       </Box>
 
-      {showCreateForm && (
-        <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-          <CreatePostForm onPostCreated={() => setShowCreateForm(false)} />
+      <CreatePostDialog
+        open={showCreateDialog}
+        onClose={() => setShowCreateDialog(false)}
+      />
+
+      {isLoading ? (
+        <DataGridSkeleton />
+      ) : (
+        <Paper elevation={3}>
+          <Box sx={{ height: 600, width: "100%" }}>
+            <DataGrid
+              rows={rows}
+              columns={columns}
+              pageSizeOptions={[10, 25, 50]}
+              initialState={{
+                pagination: {
+                  paginationModel: { page: 0, pageSize: 10 },
+                },
+                sorting: {
+                  sortModel: [{ field: "createdAt", sort: "desc" }],
+                },
+              }}
+              disableRowSelectionOnClick
+              sx={{
+                border: "none",
+                "& .MuiDataGrid-columnHeaders": {
+                  backgroundColor: "grey.50",
+                  fontWeight: 600,
+                },
+                "& .MuiDataGrid-cell": {
+                  borderBottom: "1px solid",
+                  borderColor: "grey.200",
+                },
+                "& .MuiDataGrid-row:hover": {
+                  backgroundColor: "grey.50",
+                },
+              }}
+              slots={{
+                noRowsOverlay: () => (
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      height: "100%",
+                      gap: 2,
+                    }}
+                  >
+                    <Typography variant="h6" color="text.secondary">
+                      No posts found
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Why not create the first one?
+                    </Typography>
+                    <Button
+                      variant="contained"
+                      onClick={() => setShowCreateDialog(true)}
+                    >
+                      Create Post
+                    </Button>
+                  </Box>
+                ),
+              }}
+            />
+          </Box>
         </Paper>
       )}
-
-      <Paper elevation={3}>
-        <Box sx={{ height: 600, width: "100%" }}>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            loading={isLoading}
-            pageSizeOptions={[10, 25, 50]}
-            initialState={{
-              pagination: {
-                paginationModel: { page: 0, pageSize: 10 },
-              },
-              sorting: {
-                sortModel: [{ field: "createdAt", sort: "desc" }],
-              },
-            }}
-            disableRowSelectionOnClick
-            sx={{
-              border: "none",
-              "& .MuiDataGrid-columnHeaders": {
-                backgroundColor: "grey.50",
-                fontWeight: 600,
-              },
-              "& .MuiDataGrid-cell": {
-                borderBottom: "1px solid",
-                borderColor: "grey.200",
-              },
-              "& .MuiDataGrid-row:hover": {
-                backgroundColor: "grey.50",
-              },
-            }}
-            slots={{
-              noRowsOverlay: () => (
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    height: "100%",
-                    gap: 2,
-                  }}
-                >
-                  <Typography variant="h6" color="text.secondary">
-                    No posts found
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    Why not create the first one?
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    onClick={() => setShowCreateForm(true)}
-                  >
-                    Create Post
-                  </Button>
-                </Box>
-              ),
-            }}
-          />
-        </Box>
-      </Paper>
     </Container>
   );
 };
