@@ -1,45 +1,10 @@
-Goal: Build a mini user dashboard app using
-- React, Redux (Slice version), React Router, and Material UI.
-- Node server with ExpressJS
-- MongoDB for database
+# User Dashboard
 
-This app should simulate a basic authenticated flow, with mock API interactions and a responsive UI layout.
+A full stack application created using React, TypeScript, Redux, React Router, and Express with proper post management, home feed, create/update/delete posts, login/signup flow with refresh tokens and profile management. Initiated a redis client for caching.
 
-Core Features to Implement
-1. Login Flow
-● Create a login screen using MUI components.
-● Use a API to simulate login.
-● Use hashed passwords to authenticate and JWT tokens to authorise (also implement refresh tokens here)
-● On successful login, store token/state and redirect to dashboard.
-● Protect the dashboard route from unauthorised users.
-
-2. Navigation & Routing
-● Implement routing using React Router.
-● Example Routes (suggestive, you can choose any):
-○ /login
-○ /posts
-○ /posts/:postId
-○ /posts/:postId/comments/:commentId
-○ /my_posts
-○ /profile
-● Add a persistent Navbar with navigation links and logout.
-
-3. Dashboard with API CRUD Operations
-● Display a list of posts using MUI DataGrid on /posts.
-● Allow creating a new post, updating a post, and deleting a post using modals or dialogs.
-● Also implement a file uploader while creating a post - you can skip the actual upload to the cloud part. I just want to see the file being sent to the backend and then the backend being able to extract metadata information like its name, type, etc.
-
-4. Conditional Rendering & Loading States
-● Show a loader (e.g., Skeleton or CircularProgress) if API call is delayed (simulate if using dummy APIs).
-● Display different UI states: Loading, Error, Empty data, Normal render
-
-5. User Profile Page
-● Route: /profile
-● Display logged-in user's details with editable fields.
-
-6. My Posts Section
-● Route: /my_posts
-● Display logged-in user’s posts only
-
-Bonus points:
-- Initiate redis or any cache system you like, you don’t have to use it but just initiate it and we will go over this in the following conversations
+## Screenshots
+<img width="2477" height="1485" alt="Screenshot From 2025-08-23 01-40-38" src="https://github.com/user-attachments/assets/fe3527f8-e3d8-4a2b-be92-0bed6e49b82a" />
+<img width="2477" height="1485" alt="Screenshot From 2025-08-23 01-40-29" src="https://github.com/user-attachments/assets/ca0d604a-2142-42e9-ae88-ffc92a5f07e3" />
+<img width="2477" height="1485" alt="Screenshot From 2025-08-23 01-40-01" src="https://github.com/user-attachments/assets/f2a135a3-5d81-4e27-a65f-697c63802c5e" />
+<img width="2477" height="1485" alt="Screenshot From 2025-08-23 01-39-49" src="https://github.com/user-attachments/assets/efbc9ef2-7faa-46c3-a2a6-1b39f6bf9a2b" />
+<img width="2477" height="1485" alt="Screenshot From 2025-08-23 01-39-35" src="https://github.com/user-attachments/assets/4386eef3-555b-4d45-9732-1cffaca010c5" />
