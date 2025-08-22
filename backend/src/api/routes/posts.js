@@ -2,6 +2,8 @@ const express = require("express");
 const { protect } = require("../middleware");
 const { postInput } = require("../../types/zodTypes");
 const Post = require("../models/post");
+const multer = require("multer");
+const upload = multer({ storage: multer.memoryStorage() });
 const router = express.Router();
 
 router.get("/", async (req, res) => {
@@ -35,7 +37,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", protect, async (req, res) => {
+router.post("/", protect, upload.single("attachment"), async (req, res) => {
   const body = req.body;
   const { success } = postInput.safeParse(body);
   if (!success) {
@@ -50,6 +52,15 @@ router.post("/", protect, async (req, res) => {
       content: body.content,
       author: req.user._id,
     });
+
+    if (req.file) {
+      post.attachment = {
+        fileName: req.file.originalname,
+        fileType: req.file.mimetype,
+        fileSize: req.file.size,
+      };
+    }
+
     const createdPost = await post.save();
     res.status(201).json({
       msg: "Post created successfully",

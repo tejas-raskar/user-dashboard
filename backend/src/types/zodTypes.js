@@ -16,8 +16,21 @@ const postInput = z.object({
   content: z.string().min(1),
 });
 
+const updateUserInput = z.object({
+  email: z.email().optional(),
+  name: z.string().optional(),
+});
+
+const changePasswordInput = z.object({
+  currentPassword: z.string().min(6),
+  newPassword: z.string().min(6),
+  confirmNewPassword: z.string().min(6),
+});
+
 module.exports = {
   registerInput,
   signinInput,
   postInput,
+  updateUserInput,
+  changePasswordInput,
 };
