@@ -20,7 +20,7 @@ export const setupInterceptors = (store: EnhancedStore) => {
     },
   );
 
-  axiosInstance.interceptors.request.use(
+  axiosInstance.interceptors.response.use(
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
@@ -33,6 +33,8 @@ export const setupInterceptors = (store: EnhancedStore) => {
             { withCredentials: true },
           );
           const { accessToken } = refreshResponse.data;
+          console.log("hey");
+          console.log(accessToken);
           store.dispatch(setToken(accessToken));
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return axiosInstance(originalRequest);
