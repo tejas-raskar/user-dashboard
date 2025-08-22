@@ -17,7 +17,6 @@ import {
 import { Box, Button, Typography, Container, Paper, Chip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 
 export const HomePage = () => {
@@ -38,16 +37,10 @@ export const HomePage = () => {
     }
   };
 
-  const handleView = (postId: GridRowId) => {
-    window.open(`/posts/${postId}`, "_blank");
-  };
-
   const handleEdit = (postId: GridRowId) => {
-    // TODO: Implement edit functionality
     console.log("Edit post:", postId);
   };
 
-  // Transform posts data for DataGrid
   const rows = posts.map((post: Post) => ({
     id: post._id,
     title: post.title,
@@ -82,7 +75,7 @@ export const HomePage = () => {
     {
       field: "content",
       headerName: "Content",
-      width: 300,
+      width: 250,
       renderCell: (params) => (
         <Box
           sx={{
@@ -108,13 +101,24 @@ export const HomePage = () => {
       renderCell: (params) => {
         if (!params.value) {
           return (
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              className="h-full flex items-center"
+            >
               No file
             </Typography>
           );
         }
         return (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              height: "100%",
+            }}
+          >
             <AttachFileIcon fontSize="small" color="primary" />
             <Typography variant="body2" noWrap>
               {params.value}
@@ -126,11 +130,15 @@ export const HomePage = () => {
     {
       field: "fileType",
       headerName: "File Type",
-      width: 120,
+      width: 100,
       renderCell: (params) => {
         if (!params.value) {
           return (
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              className="h-full flex items-center"
+            >
               -
             </Typography>
           );
@@ -148,23 +156,31 @@ export const HomePage = () => {
     {
       field: "fileSize",
       headerName: "File Size",
-      width: 120,
+      width: 100,
       renderCell: (params) => {
         if (!params.value || params.value === 0) {
           return (
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              className="h-full flex items-center"
+            >
               -
             </Typography>
           );
         }
         const sizeInKB = (params.value / 1024).toFixed(1);
-        return <Typography variant="body2">{sizeInKB} KB</Typography>;
+        return (
+          <Typography variant="body2" className="h-full flex items-center">
+            {sizeInKB} KB
+          </Typography>
+        );
       },
     },
     {
       field: "createdAt",
       headerName: "Created",
-      width: 150,
+      width: 100,
       type: "dateTime",
       valueFormatter: (value) => {
         if (!value) return "";
@@ -174,18 +190,10 @@ export const HomePage = () => {
     {
       field: "actions",
       type: "actions",
-      headerName: "Actions",
-      width: 120,
+      width: 20,
       getActions: (params: GridRowParams) => {
-        const actions = [
-          <GridActionsCellItem
-            icon={<VisibilityIcon />}
-            label="View"
-            onClick={() => handleView(params.id)}
-          />,
-        ];
+        const actions = [];
 
-        // Only show edit and delete for post owner
         if (params.row.isOwner) {
           actions.push(
             <GridActionsCellItem

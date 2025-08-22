@@ -70,10 +70,16 @@ export const CreatePostDialog = ({ open, onClose }: CreatePostDialogProps) => {
       maxWidth="md"
       fullWidth
       PaperProps={{
-        sx: { borderRadius: 2 }
+        sx: { borderRadius: 2 },
       }}
     >
-      <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <DialogTitle
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Typography variant="h5" component="h2">
           Create a New Post
         </Typography>
@@ -114,7 +120,9 @@ export const CreatePostDialog = ({ open, onClose }: CreatePostDialogProps) => {
 
             <FormControl fullWidth>
               <InputLabel shrink>Attachment (Optional)</InputLabel>
-              <Box sx={{ mt: 2, display: "flex", alignItems: "center", gap: 2 }}>
+              <Box
+                sx={{ mt: 2, display: "flex", alignItems: "center", gap: 2 }}
+              >
                 <Button
                   variant="outlined"
                   component="label"
@@ -143,9 +151,6 @@ export const CreatePostDialog = ({ open, onClose }: CreatePostDialogProps) => {
         </DialogContent>
 
         <DialogActions sx={{ p: 3 }}>
-          <Button onClick={handleClose} color="inherit">
-            Cancel
-          </Button>
           <Button
             type="submit"
             variant="contained"
