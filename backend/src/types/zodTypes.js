@@ -11,7 +11,13 @@ const signinInput = z.object({
   password: z.string().min(6),
 });
 
+const postInput = z.object({
+  title: z.string().min(1),
+  content: z.string().min(1),
+});
+
 module.exports = {
   registerInput,
   signinInput,
+  postInput,
 };

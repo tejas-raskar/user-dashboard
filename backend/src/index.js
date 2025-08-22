@@ -8,7 +8,7 @@ connectDB();
 
 const app = express();
 const authRoutes = require("./api/routes/auth");
-const postRoutes = require("./api/routes/post");
+const postRoutes = require("./api/routes/posts");
 
 app.use(cors());
 app.use(express.json());
