@@ -4,16 +4,7 @@ import { useEffect, useState } from "react";
 import { deletePost, getPosts } from "../features/postsSlice";
 import { Link } from "react-router-dom";
 import { CreatePostForm } from "../components/CreatePostForm";
-
-export type post = {
-  _id: string;
-  title: string;
-  content: string;
-  author: {
-    _id: string;
-    name: string;
-  };
-};
+import type { Post } from "../types";
 
 export const HomePage = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -51,7 +42,7 @@ export const HomePage = () => {
       )}
       {posts.length > 0 ? (
         <div>
-          {posts.map((post: post) => (
+          {posts.map((post: Post) => (
             <div>
               <Link to={`/posts/${post._id}`}>
                 <h2>{post.title}</h2>

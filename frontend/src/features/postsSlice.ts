@@ -1,12 +1,15 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
-import postsService, { type createPostProps } from "../api/postsService";
+import postsService, {
+  type createPostProps,
+  type UpdatePostData,
+} from "../api/postsService";
 import type { AxiosError } from "axios";
-import type { post } from "../pages/HomePage";
 import { type Post } from "../types";
 
 interface PostsState {
   posts: Post[];
+  currentPost: Post | null;
   isLoading: boolean;
   isError: boolean;
   message: string;
@@ -14,6 +17,7 @@ interface PostsState {
 
 const initialState: PostsState = {
   posts: [],
+  currentPost: null,
   isLoading: false,
   isError: false,
   message: "",
@@ -60,6 +64,36 @@ export const createPost = createAsyncThunk(
   },
 );
 
+export const getPostById = createAsyncThunk(
+  "posts/getById",
+  async (postId: string, thunkAPI) => {
+    try {
+      return await postsService.getPostById(postId);
+    } catch (e) {
+      const err = e as AxiosError<{ msg: string }>;
+      const message = err.response?.data?.msg || err.message || err.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  },
+);
+
+export const updatePost = createAsyncThunk(
+  "posts/update",
+  async (
+    { postId, postData }: { postId: string; postData: UpdatePostData },
+    thunkAPI,
+  ) => {
+    try {
+      const response = await postsService.updatePost(postId, postData);
+      return response.updatedPost;
+    } catch (e) {
+      const err = e as AxiosError<{ msg: string }>;
+      const message = err.response?.data?.msg || err.message || err.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  },
+);
+
 export const postsSlice = createSlice({
   name: "posts",
   initialState,
@@ -84,7 +118,7 @@ export const postsSlice = createSlice({
       .addCase(deletePost.fulfilled, (state, action) => {
         state.isLoading = false;
         state.posts = state.posts.filter(
-          (post: post) => post._id !== action.payload,
+          (post: Post) => post._id !== action.payload,
         );
       })
       .addCase(deletePost.rejected, (state, action) => {
@@ -100,6 +134,36 @@ export const postsSlice = createSlice({
         state.posts.unshift(action.payload);
       })
       .addCase(createPost.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload as string;
+      })
+      .addCase(getPostById.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getPostById.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.currentPost = action.payload;
+      })
+      .addCase(getPostById.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload as string;
+      })
+      .addCase(updatePost.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updatePost.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.currentPost = action.payload;
+        const index = state.posts.findIndex(
+          (post) => post._id === action.payload._id,
+        );
+        if (index !== -1) {
+          state.posts[index] = action.payload;
+        }
+      })
+      .addCase(updatePost.rejected, (state, action) => {
         state.isLoading = false;
         state.isError = true;
         state.message = action.payload as string;

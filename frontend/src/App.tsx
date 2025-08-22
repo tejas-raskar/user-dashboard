@@ -10,12 +10,12 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 function App() {
   return (
     <>
-      <Navbar />
       <Routes>
         <Route
           path="/posts"
           element={
             <ProtectedRoute>
+              <Navbar />
               <HomePage />
             </ProtectedRoute>
           }
@@ -26,6 +26,7 @@ function App() {
           path="/profile"
           element={
             <ProtectedRoute>
+              <Navbar />
               <ProfilePage />
             </ProtectedRoute>
           }
@@ -34,6 +35,7 @@ function App() {
           path="/posts/:postId"
           element={
             <ProtectedRoute>
+              <Navbar />
               <PostPage />
             </ProtectedRoute>
           }

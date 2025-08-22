@@ -6,6 +6,11 @@ export type createPostProps = {
   attachment?: File;
 };
 
+export type UpdatePostData = {
+  title: string;
+  content: string;
+};
+
 const getPosts = async () => {
   const response = await axiosInstance.get("/posts");
   return response.data.posts;
@@ -27,10 +32,22 @@ const createPost = async (postData: createPostProps) => {
   return response.data;
 };
 
+const getPostById = async (postId: string) => {
+  const response = await axiosInstance.get(`/posts/${postId}`);
+  return response.data.post;
+};
+
+const updatePost = async (postId: string, postData: UpdatePostData) => {
+  const response = await axiosInstance.put(`/posts/${postId}`, postData);
+  return response.data.post;
+};
+
 const postsService = {
   getPosts,
   deletePost,
   createPost,
+  getPostById,
+  updatePost,
 };
 
 export default postsService;
