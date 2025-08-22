@@ -12,12 +12,13 @@ import {
   type GridColDef,
   type GridRowParams,
   type GridRowId,
+  GridAddIcon,
 } from "@mui/x-data-grid";
 import { Box, Button, Typography, Container, Paper, Chip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
+import { EditPostDialog } from "../components/EditPostDialog";
 
 export const MyPostsPage = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -26,6 +27,7 @@ export const MyPostsPage = () => {
   );
 
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [postToEdit, setPostToEdit] = useState<Post | null>(null);
 
   useEffect(() => {
     dispatch(getMyPosts());
@@ -37,16 +39,10 @@ export const MyPostsPage = () => {
     }
   };
 
-  const handleView = (postId: GridRowId) => {
-    window.open(`/posts/${postId}`, "_blank");
+  const handleEdit = (post: Post) => {
+    setPostToEdit(post);
   };
 
-  const handleEdit = (postId: GridRowId) => {
-    // TODO: Implement edit functionality
-    console.log("Edit post:", postId);
-  };
-
-  // Transform posts data for DataGrid
   const rows = myPosts.map((post: Post) => ({
     id: post._id,
     title: post.title,
@@ -80,7 +76,7 @@ export const MyPostsPage = () => {
     {
       field: "content",
       headerName: "Content",
-      width: 300,
+      width: 250,
       renderCell: (params) => (
         <Box
           sx={{
@@ -101,13 +97,24 @@ export const MyPostsPage = () => {
       renderCell: (params) => {
         if (!params.value) {
           return (
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              className="h-full flex items-center"
+            >
               No file
             </Typography>
           );
         }
         return (
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1,
+              height: "100%",
+            }}
+          >
             <AttachFileIcon fontSize="small" color="primary" />
             <Typography variant="body2" noWrap>
               {params.value}
@@ -123,7 +130,11 @@ export const MyPostsPage = () => {
       renderCell: (params) => {
         if (!params.value) {
           return (
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              className="h-full flex items-center"
+            >
               -
             </Typography>
           );
@@ -145,13 +156,21 @@ export const MyPostsPage = () => {
       renderCell: (params) => {
         if (!params.value || params.value === 0) {
           return (
-            <Typography variant="body2" color="text.secondary">
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              className="h-full flex items-center"
+            >
               -
             </Typography>
           );
         }
         const sizeInKB = (params.value / 1024).toFixed(1);
-        return <Typography variant="body2">{sizeInKB} KB</Typography>;
+        return (
+          <Typography variant="body2" className="h-full flex items-center">
+            {sizeInKB} KB
+          </Typography>
+        );
       },
     },
     {
@@ -167,18 +186,12 @@ export const MyPostsPage = () => {
     {
       field: "actions",
       type: "actions",
-      headerName: "Actions",
-      width: 120,
+      width: 20,
       getActions: (params: GridRowParams) => [
-        <GridActionsCellItem
-          icon={<VisibilityIcon />}
-          label="View"
-          onClick={() => handleView(params.id)}
-        />,
         <GridActionsCellItem
           icon={<EditIcon />}
           label="Edit"
-          onClick={() => handleEdit(params.id)}
+          onClick={() => handleEdit(params.row.originalPost)}
           showInMenu
         />,
         <GridActionsCellItem
@@ -217,6 +230,8 @@ export const MyPostsPage = () => {
           My Posts
         </Typography>
         <Button
+          startIcon={<GridAddIcon />}
+          className=" text-white bg-black hover:bg-gray-900 focus:outline-none font-medium rounded-lg text-sm py-2.5"
           variant="contained"
           onClick={() => setShowCreateDialog(true)}
           sx={{ minWidth: 120 }}
@@ -228,6 +243,12 @@ export const MyPostsPage = () => {
       <CreatePostDialog
         open={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}
+      />
+
+      <EditPostDialog
+        post={postToEdit}
+        open={!!postToEdit}
+        onClose={() => setPostToEdit(null)}
       />
 
       {isLoading ? (

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { type EnhancedStore } from "@reduxjs/toolkit";
-import tokenService from "./tokenService";
+
+import { logout, setToken } from "../features/authSlice";
 
 const axiosInstance = axios.create({
   baseURL: "http://localhost:3000/api",
@@ -9,7 +10,7 @@ const axiosInstance = axios.create({
 export const setupInterceptors = (store: EnhancedStore) => {
   axiosInstance.interceptors.request.use(
     (config) => {
-      const token = tokenService.getToken();
+      const token = store.getState().auth.token;
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -24,32 +25,24 @@ export const setupInterceptors = (store: EnhancedStore) => {
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
-
-      if (
-        error.response?.status !== 401 ||
-        originalRequest.url === "/auth/refresh"
-      ) {
-        return Promise.reject(error);
-      }
-
-      try {
-        if (!originalRequest._retry) {
-          originalRequest._retry = true;
-
-          const newToken = await tokenService.refreshToken();
-
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          store.dispatch({
-            type: "auth/tokenRefreshed",
-            payload: { token: newToken },
-          });
-
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true;
+        try {
+          const refreshResponse = await axios.post(
+            "http://localhost:3000/api/auth/refresh",
+            {},
+            { withCredentials: true },
+          );
+          const { accessToken } = refreshResponse.data;
+          store.dispatch(setToken(accessToken));
+          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
           return axiosInstance(originalRequest);
+        } catch (e) {
+          store.dispatch(logout());
+          return Promise.reject(e);
         }
-      } catch (refreshError) {
-        store.dispatch({ type: "auth/logout" });
-        return Promise.reject(refreshError);
       }
+      return Promise.reject(error);
     },
   );
 };
