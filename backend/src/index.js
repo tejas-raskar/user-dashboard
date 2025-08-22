@@ -6,8 +6,10 @@ const cookieParser = require("cookie-parser");
 const authRoutes = require("./api/routes/auth");
 const postRoutes = require("./api/routes/posts");
 const userRoutes = require("./api/routes/users");
+const { connectRedis } = require("./config/redis");
 
 connectDB();
+// connectRedis();
 const app = express();
 
 app.use(
