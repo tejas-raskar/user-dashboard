@@ -9,6 +9,7 @@ import { type Post } from "../types";
 
 interface PostsState {
   posts: Post[];
+  myPosts: Post[];
   currentPost: Post | null;
   isLoading: boolean;
   isError: boolean;
@@ -17,6 +18,7 @@ interface PostsState {
 
 const initialState: PostsState = {
   posts: [],
+  myPosts: [],
   currentPost: null,
   isLoading: false,
   isError: false,
@@ -28,6 +30,19 @@ export const getPosts = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       return await postsService.getPosts();
+    } catch (e) {
+      const err = e as AxiosError<{ msg: string }>;
+      const message = err.response?.data?.msg || err.message || err.toString();
+      return thunkAPI.rejectWithValue(message);
+    }
+  },
+);
+
+export const getMyPosts = createAsyncThunk(
+  "posts/getMyPosts",
+  async (_, thunkAPI) => {
+    try {
+      return await postsService.getMyPosts();
     } catch (e) {
       const err = e as AxiosError<{ msg: string }>;
       const message = err.response?.data?.msg || err.message || err.toString();
@@ -112,12 +127,27 @@ export const postsSlice = createSlice({
         state.isError = true;
         state.message = action.payload as string;
       })
+      .addCase(getMyPosts.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getMyPosts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.myPosts = action.payload;
+      })
+      .addCase(getMyPosts.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload as string;
+      })
       .addCase(deletePost.pending, (state) => {
         state.isLoading = true;
       })
       .addCase(deletePost.fulfilled, (state, action) => {
         state.isLoading = false;
         state.posts = state.posts.filter(
+          (post: Post) => post._id !== action.payload,
+        );
+        state.myPosts = state.myPosts.filter(
           (post: Post) => post._id !== action.payload,
         );
       })
@@ -132,6 +162,7 @@ export const postsSlice = createSlice({
       .addCase(createPost.fulfilled, (state, action) => {
         state.isLoading = false;
         state.posts.unshift(action.payload);
+        state.myPosts.unshift(action.payload);
       })
       .addCase(createPost.rejected, (state, action) => {
         state.isLoading = false;

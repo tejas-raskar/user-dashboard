@@ -42,12 +42,18 @@ const updatePost = async (postId: string, postData: UpdatePostData) => {
   return response.data.post;
 };
 
+const getMyPosts = async () => {
+  const response = await axiosInstance.get("/posts/myposts");
+  return response.data.posts;
+};
+
 const postsService = {
   getPosts,
   deletePost,
   createPost,
   getPostById,
   updatePost,
+  getMyPosts,
 };
 
 export default postsService;

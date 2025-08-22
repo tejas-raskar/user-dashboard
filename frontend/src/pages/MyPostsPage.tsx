@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../app/store";
 import { useEffect, useState } from "react";
-import { deletePost, getPosts } from "../features/postsSlice";
+import { deletePost, getMyPosts } from "../features/postsSlice";
 import { Link } from "react-router-dom";
 import { CreatePostForm } from "../components/CreatePostForm";
 import type { Post } from "../types";
@@ -18,16 +18,16 @@ import EditIcon from "@mui/icons-material/Edit";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
 
-export const HomePage = () => {
+export const MyPostsPage = () => {
   const dispatch: AppDispatch = useDispatch();
-  const { posts, isError, isLoading, message } = useSelector(
+  const { myPosts, isError, isLoading, message } = useSelector(
     (state: RootState) => state.posts,
   );
-  const { user } = useSelector((state: RootState) => state.auth);
+
   const [showCreateForm, setShowCreateForm] = useState(false);
 
   useEffect(() => {
-    dispatch(getPosts());
+    dispatch(getMyPosts());
   }, [dispatch]);
 
   const handleDelete = (postId: GridRowId) => {
@@ -46,7 +46,7 @@ export const HomePage = () => {
   };
 
   // Transform posts data for DataGrid
-  const rows = posts.map((post: Post) => ({
+  const rows = myPosts.map((post: Post) => ({
     id: post._id,
     title: post.title,
     content: post.content,
@@ -55,7 +55,6 @@ export const HomePage = () => {
     fileType: post.attachment?.fileType || "",
     fileSize: post.attachment?.fileSize || 0,
     createdAt: new Date(post.createdAt),
-    isOwner: user?._id === post.author._id,
     originalPost: post,
   }));
 
@@ -93,11 +92,6 @@ export const HomePage = () => {
           {params.value}
         </Box>
       ),
-    },
-    {
-      field: "author",
-      headerName: "Author",
-      width: 150,
     },
     {
       field: "fileName",
@@ -174,35 +168,25 @@ export const HomePage = () => {
       type: "actions",
       headerName: "Actions",
       width: 120,
-      getActions: (params: GridRowParams) => {
-        const actions = [
-          <GridActionsCellItem
-            icon={<VisibilityIcon />}
-            label="View"
-            onClick={() => handleView(params.id)}
-          />,
-        ];
-
-        // Only show edit and delete for post owner
-        if (params.row.isOwner) {
-          actions.push(
-            <GridActionsCellItem
-              icon={<EditIcon />}
-              label="Edit"
-              onClick={() => handleEdit(params.id)}
-              showInMenu
-            />,
-            <GridActionsCellItem
-              icon={<DeleteIcon />}
-              label="Delete"
-              onClick={() => handleDelete(params.id)}
-              showInMenu
-            />,
-          );
-        }
-
-        return actions;
-      },
+      getActions: (params: GridRowParams) => [
+        <GridActionsCellItem
+          icon={<VisibilityIcon />}
+          label="View"
+          onClick={() => handleView(params.id)}
+        />,
+        <GridActionsCellItem
+          icon={<EditIcon />}
+          label="Edit"
+          onClick={() => handleEdit(params.id)}
+          showInMenu
+        />,
+        <GridActionsCellItem
+          icon={<DeleteIcon />}
+          label="Delete"
+          onClick={() => handleDelete(params.id)}
+          showInMenu
+        />,
+      ],
     },
   ];
 
@@ -229,7 +213,7 @@ export const HomePage = () => {
         }}
       >
         <Typography variant="h4" component="h1" gutterBottom>
-          All Posts
+          My Posts
         </Typography>
         <Button
           variant="contained"
@@ -289,16 +273,16 @@ export const HomePage = () => {
                   }}
                 >
                   <Typography variant="h6" color="text.secondary">
-                    No posts found
+                    You haven't created any posts yet
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Why not create the first one?
+                    Create your first post to get started!
                   </Typography>
                   <Button
                     variant="contained"
                     onClick={() => setShowCreateForm(true)}
                   >
-                    Create Post
+                    Create Your First Post
                   </Button>
                 </Box>
               ),
