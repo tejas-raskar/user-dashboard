@@ -18,6 +18,7 @@ import { Box, Button, Typography, Container, Paper, Chip } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import AttachFileIcon from "@mui/icons-material/AttachFile";
+import { EditPostDialog } from "../components/EditPostDialog";
 
 export const HomePage = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -26,6 +27,7 @@ export const HomePage = () => {
   );
   const { user } = useSelector((state: RootState) => state.auth);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [postToEdit, setPostToEdit] = useState<Post | null>(null);
 
   useEffect(() => {
     dispatch(getPosts());
@@ -37,8 +39,8 @@ export const HomePage = () => {
     }
   };
 
-  const handleEdit = (postId: GridRowId) => {
-    console.log("Edit post:", postId);
+  const handleEdit = (post: Post) => {
+    setPostToEdit(post);
   };
 
   const rows = posts.map((post: Post) => ({
@@ -199,7 +201,7 @@ export const HomePage = () => {
             <GridActionsCellItem
               icon={<EditIcon />}
               label="Edit"
-              onClick={() => handleEdit(params.id)}
+              onClick={() => handleEdit(params.row.originalPost)}
               showInMenu
             />,
             <GridActionsCellItem
@@ -255,6 +257,12 @@ export const HomePage = () => {
       <CreatePostDialog
         open={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}
+      />
+
+      <EditPostDialog
+        post={postToEdit}
+        open={!!postToEdit}
+        onClose={() => setPostToEdit(null)}
       />
 
       {isLoading ? (

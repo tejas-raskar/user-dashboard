@@ -39,7 +39,7 @@ const getPostById = async (postId: string) => {
 
 const updatePost = async (postId: string, postData: UpdatePostData) => {
   const response = await axiosInstance.put(`/posts/${postId}`, postData);
-  return response.data.post;
+  return response.data;
 };
 
 const getMyPosts = async () => {

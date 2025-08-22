@@ -193,6 +193,12 @@ export const postsSlice = createSlice({
         if (index !== -1) {
           state.posts[index] = action.payload;
         }
+        const myPostIndex = state.myPosts.findIndex(
+          (post) => post._id === action.payload._id,
+        );
+        if (myPostIndex !== -1) {
+          state.myPosts[myPostIndex] = action.payload;
+        }
       })
       .addCase(updatePost.rejected, (state, action) => {
         state.isLoading = false;
