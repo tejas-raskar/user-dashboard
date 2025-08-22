@@ -5,10 +5,11 @@ import authService, {
 } from "../api/authService";
 import { createSlice } from "@reduxjs/toolkit";
 import { AxiosError } from "axios";
+import tokenService from "../api/tokenService";
 
 const userJSON = localStorage.getItem("user");
 const user = userJSON ? JSON.parse(userJSON) : null;
-const token = localStorage.getItem("token");
+const token = tokenService.getToken();
 
 const initialState = {
   user: user ? user : null,
@@ -55,8 +56,11 @@ export const authSlice = createSlice({
       state.isAuthenticated = false;
       state.isError = false;
       state.message = "";
+      tokenService.removeToken();
       localStorage.removeItem("user");
-      localStorage.removeItem("token");
+    },
+    tokenRefreshed: (state, action) => {
+      state.token = action.payload.token;
     },
   },
   extraReducers: (builder) => {
@@ -87,5 +91,5 @@ export const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, tokenRefreshed } = authSlice.actions;
 export default authSlice.reducer;
