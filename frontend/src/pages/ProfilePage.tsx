@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { type AppDispatch, type RootState } from "../app/store";
-import { getMe, updateMe, changePassword, reset } from "../features/userSlice";
+import { getMe, changePassword, reset } from "../features/userSlice";
+import { EditProfileDialog } from "../components/EditProfileDialog";
 import {
   Container,
   Typography,
@@ -15,7 +16,12 @@ import {
   Snackbar,
   Alert,
   Divider,
+  IconButton,
+  Stack,
 } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import PersonIcon from "@mui/icons-material/Person";
+import EmailIcon from "@mui/icons-material/Email";
 
 export const ProfilePage = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -23,15 +29,12 @@ export const ProfilePage = () => {
     (state: RootState) => state.user,
   );
 
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-  });
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmNewPassword: "",
   });
+  const [isEditDialogOpen, setEditDialogOpen] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
@@ -43,34 +46,16 @@ export const ProfilePage = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (profile) {
-      setFormData({
-        name: profile.name,
-        email: profile.email,
-      });
-    }
     if (isSuccess || isError) {
       setSnackbarOpen(true);
     }
-  }, [profile, isSuccess, isError]);
-
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      [e.target.name]: e.target.value,
-    }));
-  };
+  }, [isSuccess, isError]);
 
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPasswordData((prevState) => ({
       ...prevState,
       [e.target.name]: e.target.value,
     }));
-  };
-
-  const handleProfileSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    dispatch(updateMe(formData));
   };
 
   const handleChangePasswordSubmit = (e: React.FormEvent) => {
@@ -107,51 +92,54 @@ export const ProfilePage = () => {
       <Grid container spacing={4}>
         {/* Profile Details Card */}
         <Grid item xs={12} md={6}>
-          <Card elevation={3}>
+          <Card elevation={3} sx={{ height: "100%" }}>
             <CardContent>
-              <Typography variant="h5" gutterBottom>
-                Account Details
-              </Typography>
               <Box
-                component="form"
-                onSubmit={handleProfileSubmit}
-                sx={{ mt: 2 }}
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  mb: 2,
+                }}
               >
-                <TextField
-                  fullWidth
-                  label="Name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleFormChange}
-                  margin="normal"
-                  required
-                />
-                <TextField
-                  fullWidth
-                  label="Email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleFormChange}
-                  margin="normal"
-                  required
-                />
-                <Button
-                  type="submit"
-                  variant="contained"
-                  sx={{ mt: 2 }}
-                  disabled={isLoading}
+                <Typography variant="h5">Account Details</Typography>
+                <IconButton
+                  color="primary"
+                  onClick={() => setEditDialogOpen(true)}
                 >
-                  {isLoading ? <CircularProgress size={24} /> : "Save Changes"}
-                </Button>
+                  <EditIcon />
+                </IconButton>
               </Box>
+              <Divider sx={{ mb: 3 }} />
+              {profile && (
+                <Stack spacing={2}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <PersonIcon color="action" />
+                    <Box>
+                      <Typography variant="body2" color="text.secondary">
+                        Name
+                      </Typography>
+                      <Typography variant="h6">{profile.name}</Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <EmailIcon color="action" />
+                    <Box>
+                      <Typography variant="body2" color="text.secondary">
+                        Email
+                      </Typography>
+                      <Typography variant="h6">{profile.email}</Typography>
+                    </Box>
+                  </Box>
+                </Stack>
+              )}
             </CardContent>
           </Card>
         </Grid>
 
         {/* Change Password Card */}
         <Grid item xs={12} md={6}>
-          <Card elevation={3}>
+          <Card elevation={3} sx={{ height: "100%" }}>
             <CardContent>
               <Typography variant="h5" gutterBottom>
                 Change Password
@@ -208,6 +196,12 @@ export const ProfilePage = () => {
           </Card>
         </Grid>
       </Grid>
+
+      <EditProfileDialog
+        profile={profile}
+        open={isEditDialogOpen}
+        onClose={() => setEditDialogOpen(false)}
+      />
 
       <Snackbar
         open={snackbarOpen}
